@@ -30,6 +30,9 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->brandName(get_site_name() ?? 'Admin Panel')
+            ->favicon(get_site_favicon() ?? asset('favicon.ico'))
+            ->globalSearch(false)
             ->colors([
                 'primary' => Color::Amber,
             ])

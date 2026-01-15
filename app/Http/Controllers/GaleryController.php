@@ -11,30 +11,11 @@ use Illuminate\View\View;
 class GaleryController extends Controller
 {
     /**
-     * Display the gallery page with paginated images.
+     * Display the gallery page with Livewire component.
      */
     public function index(Request $request): View
     {
-        // Get all featured categories for filter
-        $categories = Category::where('is_featured', true)
-            ->orderBy('name')
-            ->get();
-
-        // Build query
-        $query = Gallery::query();
-
-        // Filter by category if selected
-        $selectedCategory = $request->query('category');
-        if ($selectedCategory) {
-            $query->where('category_id', $selectedCategory);
-        }
-
-        // Get paginated galleries
-        $galleries = $query->orderBy('created_at', 'desc')
-            ->paginate(12)
-            ->appends(['category' => $selectedCategory]); // Preserve category in pagination
-
-        return view('web.pages.galery', compact('galleries', 'categories', 'selectedCategory'));
+        return view('web.pages.galery');
     }
 
     /**

@@ -1,7 +1,11 @@
     <div class="w-[90%] max-w-[1600px] mx-auto px-8">
         <nav class="py-8 flex justify-between items-center">
-            <a href="{{ route('home') }}" class="font-heading text-2xl font-bold flex items-center gap-2">
+            <a href="{{ route('home') }}" class="font-heading text-2xl font-bold flex items-center gap-3">
+                @if(get_site_logo())
+                <img src="{{ get_site_logo() }}" alt="{{ get_site_name() }} Logo" class="h-10 w-10 object-contain">
+                @else
                 <i class="ri-camera-lens-line text-accent"></i>
+                @endif
                 {{ get_site_name() }}
             </a>
             <div class="hidden md:flex gap-12 text-sm tracking-widest uppercase ml-auto">

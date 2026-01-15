@@ -3,8 +3,12 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
                 <!-- Brand & Desc -->
                 <div class="lg:col-span-1">
-                    <a href="{{ route('home') }}" class="font-heading text-2xl font-bold flex items-center gap-2 mb-6 text-white">
+                    <a href="{{ route('home') }}" class="font-heading text-2xl font-bold flex items-center gap-3 mb-6 text-white">
+                        @if(get_site_logo())
+                        <img src="{{ get_site_logo() }}" alt="{{ get_site_name() }} Logo" class="h-10 w-10 object-contain">
+                        @else
                         <i class="ri-camera-lens-line text-accent"></i>
+                        @endif
                         {{ get_site_name() }}
                     </a>
                     <p class="text-muted leading-relaxed mb-6">
@@ -12,16 +16,37 @@
                     </p>
 
                     <!-- Socials -->
-                    @php $socials = get_social_media_links(); @endphp
-                    @if(!empty($socials))
                     <div class="flex gap-4">
-                        @foreach($socials as $platform => $link)
-                        <a href="{{ $link }}" target="_blank" class="w-[35px] h-[35px] rounded-full bg-white/5 flex items-center justify-center text-xs hover:bg-accent hover:text-black transition-all duration-300">
-                            <i class="ri-{{ $platform }}-line text-lg"></i>
+                        @if(get_site_instagram())
+                        <a href="{{ get_site_instagram() }}" target="_blank" class="w-[35px] h-[35px] rounded-full bg-white/5 flex items-center justify-center hover:bg-accent hover:text-black transition-all duration-300">
+                            <i class="ri-instagram-line text-lg"></i>
                         </a>
-                        @endforeach
+                        @endif
+
+                        @if(get_site_facebook())
+                        <a href="{{ get_site_facebook() }}" target="_blank" class="w-[35px] h-[35px] rounded-full bg-white/5 flex items-center justify-center hover:bg-accent hover:text-black transition-all duration-300">
+                            <i class="ri-facebook-line text-lg"></i>
+                        </a>
+                        @endif
+
+                        @if(get_site_twitter())
+                        <a href="{{ get_site_twitter() }}" target="_blank" class="w-[35px] h-[35px] rounded-full bg-white/5 flex items-center justify-center hover:bg-accent hover:text-black transition-all duration-300">
+                            <i class="ri-twitter-x-fill text-lg"></i>
+                        </a>
+                        @endif
+
+                        @if(get_site_youtube())
+                        <a href="{{ get_site_youtube() }}" target="_blank" class="w-[35px] h-[35px] rounded-full bg-white/5 flex items-center justify-center hover:bg-accent hover:text-black transition-all duration-300">
+                            <i class="ri-youtube-line text-lg"></i>
+                        </a>
+                        @endif
+
+                        @if(get_site_tiktok())
+                        <a href="{{ get_site_tiktok() }}" target="_blank" class="w-[35px] h-[35px] rounded-full bg-white/5 flex items-center justify-center hover:bg-accent hover:text-black transition-all duration-300">
+                            <i class="ri-tiktok-fill text-lg"></i>
+                        </a>
+                        @endif
                     </div>
-                    @endif
                 </div>
 
                 <!-- Quick Links -->
