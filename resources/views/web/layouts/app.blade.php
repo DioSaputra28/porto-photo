@@ -12,52 +12,7 @@
     <!-- Remix Icons -->
     <link href="https://cdn.jsdelivr.net/npm/remixicon@2.5.0/fonts/remixicon.css" rel="stylesheet" />
     <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#1A2321', // Deep Dark Green
-                        secondary: '#0F1413', // Darker Green
-                        accent: '#FF6B4A', // Coral
-                        'accent-hover': '#E85A3A',
-                        text: '#F4F4F4', // Off-white
-                        muted: '#A0A0A0', // Grey
-                        brandyellow: '#F4D03F',
-                    },
-                    fontFamily: {
-                        heading: ['Playfair Display', 'serif'],
-                        body: ['Inter', 'sans-serif'],
-                    },
-                    animation: {
-                        'spin-slow': 'spin 10s linear infinite',
-                        'float': 'float 6s ease-in-out infinite',
-                    },
-                    keyframes: {
-                        float: {
-                            '0%, 100%': {
-                                transform: 'translateY(0)'
-                            },
-                            '50%': {
-                                transform: 'translateY(-10px)'
-                            },
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        /* Custom Utilities not easily in Tailwind */
-        .arch-image {
-            border-radius: 200px 200px 0 0;
-        }
-
-        .text-curved-path {
-            animation: spin 10s linear infinite;
-        }
-    </style>
+    @vite('resources/css/app.css', 'resources/js/app.js')
 </head>
 
 <body class="bg-primary text-text font-body leading-relaxed overflow-x-hidden">

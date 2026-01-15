@@ -11,14 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('galery', function (Blueprint $table) {
+        Schema::create('service', function (Blueprint $table) {
             $table->id();
-            $table->string('path');
-            $table->boolean('is_featured');
-            $table->string('title');
+            $table->string('name');
+            $table->text('description');
+            $table->string('slug')->unique();
+            $table->integer('price');
+            $table->boolean('is_featured')->default(false);
             $table->foreignId('category_id')->nullable()->constrained('category')->onDelete('set null');
-            $table->integer('total_click')->nullable();
-            $table->integer('total_download')->nullable();
             $table->timestamps();
         });
     }
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('galery');
+        Schema::dropIfExists('service');
     }
 };

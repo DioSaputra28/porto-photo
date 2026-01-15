@@ -16,6 +16,29 @@
     </div>
 </header>
 
+<!-- Category Filter -->
+<section class="py-8 border-b border-white/10" id="category-filter">
+    <div class="w-[90%] max-w-[1600px] mx-auto px-8">
+        <div class="flex items-center gap-4 overflow-x-auto scrollbar-hide pb-2">
+            <!-- All Categories Button -->
+            <a href="{{ route('gallery') }}"
+                class="category-filter-btn {{ !$selectedCategory ? 'active' : '' }} flex-shrink-0 px-6 py-2.5 rounded-full border-2 transition-all duration-300 font-medium text-sm tracking-wide uppercase
+                      {{ !$selectedCategory ? 'bg-accent border-accent text-black' : 'border-white/20 text-white/70 hover:border-accent hover:text-accent' }}">
+                All
+            </a>
+
+            <!-- Category Buttons -->
+            @foreach($categories as $category)
+            <a href="{{ route('gallery', ['category' => $category->id]) }}"
+                class="category-filter-btn {{ $selectedCategory == $category->id ? 'active' : '' }} flex-shrink-0 px-6 py-2.5 rounded-full border-2 transition-all duration-300 font-medium text-sm tracking-wide uppercase
+                      {{ $selectedCategory == $category->id ? 'bg-accent border-accent text-black' : 'border-white/20 text-white/70 hover:border-accent hover:text-accent' }}">
+                {{ $category->name }}
+            </a>
+            @endforeach
+        </div>
+    </div>
+</section>
+
 <!-- Gallery Grid -->
 <section class="py-12" id="gallery-grid">
     <div class="w-[90%] max-w-[1600px] mx-auto px-8">
@@ -50,14 +73,50 @@
                             <span class="view-count-{{ $gallery->id }}">{{ number_format($gallery->total_click) }}</span>
                         </div>
                         <div class="flex items-center gap-2" title="Downloads">
-                            <i class="ri-download-cloud-line text-lg hover:text-accent transition-colors cursor-pointer"></i>
-                            <span>{{ number_format($gallery->total_download) }}</span>
+                            <i class="ri-download-cloud-line text-lg hover:text-accent transition-colors cursor-pointer"
+                                onclick="downloadFromCard({{ $gallery->id }})"></i>
+                            <span class="download-count-{{ $gallery->id }}">{{ number_format($gallery->total_download) }}</span>
                         </div>
                     </div>
                 </div>
             </div>
             @endforeach
         </div>
+
+        <!-- Empty State -->
+        @if($galleries->isEmpty())
+        <div class="flex flex-col items-center justify-center py-24 text-center">
+            <div class="relative mb-8">
+                <!-- Animated Circle Background -->
+                <div class="absolute inset-0 bg-accent/10 rounded-full blur-3xl animate-pulse"></div>
+
+                <!-- Icon -->
+                <div class="relative bg-[#1a1a1a] border-2 border-white/10 rounded-full p-8">
+                    <i class="ri-camera-off-line text-6xl text-accent"></i>
+                </div>
+            </div>
+
+            <h3 class="font-heading text-3xl md:text-4xl text-white mb-4">
+                No Photos Found
+            </h3>
+
+            <p class="text-muted text-lg max-w-md mb-8">
+                @if($selectedCategory)
+                There are no photos in this category yet. Check back soon or explore other categories.
+                @else
+                The gallery is currently empty. New photos will be added soon.
+                @endif
+            </p>
+
+            @if($selectedCategory)
+            <a href="{{ route('gallery') }}"
+                class="inline-flex items-center gap-2 bg-accent text-black font-bold px-8 py-3 rounded-full hover:bg-white transition-all duration-300 group">
+                <i class="ri-arrow-left-line text-xl group-hover:-translate-x-1 transition-transform"></i>
+                View All Photos
+            </a>
+            @endif
+        </div>
+        @endif
 
         <!-- Pagination -->
         @if($galleries->hasPages())
@@ -67,6 +126,22 @@
         @endif
     </div>
 </section>
+
+<!-- Custom Styles -->
+<style>
+    /* Hide scrollbar for category filter */
+    .scrollbar-hide {
+        -ms-overflow-style: none;
+        /* IE and Edge */
+        scrollbar-width: none;
+        /* Firefox */
+    }
+
+    .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+        /* Chrome, Safari and Opera */
+    }
+</style>
 
 <!-- Lightbox Modal -->
 <div id="lightbox" class="fixed inset-0 z-50 hidden bg-black/95 backdrop-blur-sm transition-opacity duration-300 opacity-0 pointer-events-none">
@@ -83,32 +158,8 @@
         </button>
 
         <!-- Image Container -->
-        <div class="relative max-w-full max-h-full flex flex-col items-center justify-center">
-            <img id="lightbox-image" src="" alt="" class="max-w-full max-h-[85vh] object-contain shadow-2xl rounded opacity-0 scale-95 transition-all duration-500" />
-
-            <div class="mt-6 text-center">
-                <h3 id="lightbox-title" class="font-heading text-2xl md:text-3xl text-white mb-2 translate-y-4 opacity-0 transition-all duration-500 delay-100"></h3>
-
-                <!-- Stats -->
-                <div class="flex items-center justify-center gap-6 text-muted text-sm mt-3 opacity-0 translate-y-4 transition-all duration-500 delay-150" id="lightbox-stats">
-                    <div class="flex items-center gap-2">
-                        <i class="ri-eye-line"></i>
-                        <span id="lightbox-views">0</span>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <i class="ri-download-cloud-line"></i>
-                        <span id="lightbox-downloads">0</span>
-                    </div>
-                </div>
-
-                <!-- Download Button -->
-                <button onclick="downloadImage()"
-                    id="lightbox-download-btn"
-                    class="mt-6 inline-flex items-center gap-2 bg-accent text-black font-bold px-6 py-3 rounded hover:bg-white transition-all duration-300 opacity-0 translate-y-4 delay-200">
-                    <i class="ri-download-cloud-line text-xl"></i>
-                    Download Image
-                </button>
-            </div>
+        <div class="relative max-w-full max-h-full flex items-center justify-center">
+            <img id="lightbox-image" src="" alt="" class="max-w-full max-h-[90vh] object-contain shadow-2xl rounded opacity-0 scale-95 transition-all duration-500" />
         </div>
 
         <!-- Navigation Next -->
@@ -127,11 +178,6 @@
     let currentGalleryId = null;
     const lightbox = document.getElementById('lightbox');
     const lightboxImage = document.getElementById('lightbox-image');
-    const lightboxTitle = document.getElementById('lightbox-title');
-    const lightboxStats = document.getElementById('lightbox-stats');
-    const lightboxViews = document.getElementById('lightbox-views');
-    const lightboxDownloads = document.getElementById('lightbox-downloads');
-    const lightboxDownloadBtn = document.getElementById('lightbox-download-btn');
 
     function openLightbox(index) {
         currentIndex = index;
@@ -142,9 +188,6 @@
         setTimeout(() => {
             lightbox.classList.remove('opacity-0');
             lightboxImage.classList.remove('opacity-0', 'scale-95');
-            lightboxTitle.classList.remove('opacity-0', 'translate-y-4');
-            lightboxStats.classList.remove('opacity-0', 'translate-y-4');
-            lightboxDownloadBtn.classList.remove('opacity-0', 'translate-y-4');
         }, 10);
 
         document.body.style.overflow = 'hidden'; // Prevent scrolling
@@ -156,9 +199,6 @@
     function closeLightbox() {
         lightbox.classList.add('opacity-0');
         lightboxImage.classList.add('opacity-0', 'scale-95');
-        lightboxTitle.classList.add('opacity-0', 'translate-y-4');
-        lightboxStats.classList.add('opacity-0', 'translate-y-4');
-        lightboxDownloadBtn.classList.add('opacity-0', 'translate-y-4');
 
         setTimeout(() => {
             lightbox.classList.add('hidden', 'pointer-events-none');
@@ -169,9 +209,6 @@
     function changeImage(direction) {
         // Fade out current content
         lightboxImage.classList.add('opacity-0', 'scale-95');
-        lightboxTitle.classList.add('opacity-0', 'translate-y-4');
-        lightboxStats.classList.add('opacity-0', 'translate-y-4');
-        lightboxDownloadBtn.classList.add('opacity-0', 'translate-y-4');
 
         setTimeout(() => {
             currentIndex = (currentIndex + direction + totalItems) % totalItems;
@@ -179,9 +216,6 @@
 
             // Fade in new content
             lightboxImage.classList.remove('opacity-0', 'scale-95');
-            lightboxTitle.classList.remove('opacity-0', 'translate-y-4');
-            lightboxStats.classList.remove('opacity-0', 'translate-y-4');
-            lightboxDownloadBtn.classList.remove('opacity-0', 'translate-y-4');
 
             // Track View for new image
             trackView(currentIndex);
@@ -193,18 +227,6 @@
         if (currentElement) {
             currentGalleryId = currentElement.dataset.id;
             lightboxImage.src = currentElement.dataset.image;
-            lightboxTitle.textContent = currentElement.dataset.title;
-
-            // Update stats from card
-            const cardViewCount = document.querySelector(`.view-count-${currentGalleryId}`);
-            const cardDownloadCount = cardViewCount?.closest('.flex.items-center.gap-6')?.querySelector('.flex.items-center.gap-2:last-child span');
-
-            if (cardViewCount) {
-                lightboxViews.textContent = cardViewCount.textContent;
-            }
-            if (cardDownloadCount) {
-                lightboxDownloads.textContent = cardDownloadCount.textContent;
-            }
         }
     }
 
@@ -231,18 +253,14 @@
                     if (viewCountEl) {
                         viewCountEl.textContent = data.total_clicks.toLocaleString();
                     }
-                    // Update lightbox stats
-                    lightboxViews.textContent = data.total_clicks.toLocaleString();
                 }
             })
             .catch(error => console.error('Error tracking view:', error));
     }
 
-    function downloadImage() {
-        if (!currentGalleryId) return;
-
+    function downloadFromCard(galleryId) {
         // Track download via AJAX
-        fetch(`/gallery/${currentGalleryId}/track-download`, {
+        fetch(`/gallery/${galleryId}/track-download`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -255,17 +273,9 @@
 
                 if (data.success) {
                     // Update download count in card
-                    const cardDownloadCount = document.querySelector(`.view-count-${currentGalleryId}`)
-                        ?.closest('.flex.items-center.gap-6')
-                        ?.querySelector('.flex.items-center.gap-2:last-child span');
-
-                    if (cardDownloadCount && data.total_downloads) {
-                        cardDownloadCount.textContent = data.total_downloads.toLocaleString();
-                    }
-
-                    // Update lightbox stats
-                    if (data.total_downloads) {
-                        lightboxDownloads.textContent = data.total_downloads.toLocaleString();
+                    const downloadCountEl = document.querySelector(`.download-count-${galleryId}`);
+                    if (downloadCountEl && data.total_downloads) {
+                        downloadCountEl.textContent = data.total_downloads.toLocaleString();
                     }
 
                     // Trigger download
@@ -277,7 +287,7 @@
             .catch(error => {
                 console.error('Error tracking download:', error);
                 // Even if tracking fails, try to download
-                window.location.href = `/gallery/${currentGalleryId}/download`;
+                window.location.href = `/gallery/${galleryId}/download`;
             });
     }
 

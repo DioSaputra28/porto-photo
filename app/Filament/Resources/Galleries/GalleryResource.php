@@ -11,6 +11,7 @@ use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
@@ -26,7 +27,7 @@ class GalleryResource extends Resource
 {
     protected static ?string $model = Gallery::class;
 
-    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedRectangleStack;
+    protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedCamera;
 
     protected static ?string $recordTitleAttribute = 'My Gallery';
 
@@ -38,19 +39,25 @@ class GalleryResource extends Resource
                     ->required()
                     ->label('Image')
                     ->disk('public')
+                    ->visibility('public')
                     ->directory('galleries')
                     ->image()
+                    // ->acceptedFileTypes(['image/*'])
                     ->imageEditor()
                     ->imageEditorAspectRatios([
                         null,
                         '16:9',
                         '4:3',
                         '1:1',
-                    ])
-                    ->openable()
-                    ->downloadable(),
+                    ]),
                 TextInput::make('title')
                     ->required(),
+                Select::make('category_id')
+                    ->relationship('category', 'name', modifyQueryUsing: fn($query) => $query->where('is_featured', true))
+                    ->label('Category')
+                    ->searchable()
+                    ->preload()
+                    ->nullable(),
                 Toggle::make('is_featured')
                     ->required(),
                 Hidden::make('total_click')
@@ -73,6 +80,11 @@ class GalleryResource extends Resource
                     ->label('Featured'),
                 TextColumn::make('title')
                     ->searchable(),
+                TextColumn::make('category.name')
+                    ->label('Category')
+                    ->searchable()
+                    ->sortable()
+                    ->placeholder('No Category'),
                 TextColumn::make('total_click')
                     ->numeric()
                     ->sortable(),

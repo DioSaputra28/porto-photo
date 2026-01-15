@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Gallery;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class GaleryController extends Controller
@@ -11,12 +13,28 @@ class GaleryController extends Controller
     /**
      * Display the gallery page with paginated images.
      */
-    public function index(): View
+    public function index(Request $request): View
     {
-        $galleries = Gallery::orderBy('created_at', 'desc')
-            ->paginate(12);
+        // Get all featured categories for filter
+        $categories = Category::where('is_featured', true)
+            ->orderBy('name')
+            ->get();
 
-        return view('web.pages.galery', compact('galleries'));
+        // Build query
+        $query = Gallery::query();
+
+        // Filter by category if selected
+        $selectedCategory = $request->query('category');
+        if ($selectedCategory) {
+            $query->where('category_id', $selectedCategory);
+        }
+
+        // Get paginated galleries
+        $galleries = $query->orderBy('created_at', 'desc')
+            ->paginate(12)
+            ->appends(['category' => $selectedCategory]); // Preserve category in pagination
+
+        return view('web.pages.galery', compact('galleries', 'categories', 'selectedCategory'));
     }
 
     /**
